@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   Clock,
   ArrowUpRight,
-  ArrowLeft,
   Plus,
   Database,
   Phone,
@@ -83,38 +82,6 @@ export function RecordsDirectory({
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      {/* Top Sheet Header & Add Data Button */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <button
-            type="button"
-            onClick={onBackToSheets}
-            className="inline-flex min-h-[36px] items-center gap-1.5 text-xs font-semibold text-indigo-700 transition-colors hover:text-indigo-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 rounded"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Back to All Sheets</span>
-          </button>
-          <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl text-balance">
-            {sheetName}
-          </h1>
-          <p className="mt-0.5 text-sm text-slate-600">
-            Tap any household card to edit & update, or add a new record to this sheet.
-          </p>
-        </div>
-
-        <motion.button
-          type="button"
-          whileHover={{ y: -1 }}
-          whileTap={{ scale: 0.98 }}
-          transition={{ duration: 0.14 }}
-          onClick={onAddNewRecord}
-          className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-indigo-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-800 sm:w-auto whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 focus-visible:ring-offset-2"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add New Data</span>
-        </motion.button>
-      </div>
-
       {/* 4 Overview Cards for Active Sheet */}
       <DashboardStatsCards
         records={records}
@@ -221,26 +188,6 @@ export function RecordsDirectory({
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Quick Add New Record Card */}
-          <motion.button
-            type="button"
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.99 }}
-            transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-            onClick={onAddNewRecord}
-            className="flex min-h-[168px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white/80 p-5 text-center transition-colors hover:border-indigo-600 hover:bg-indigo-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700"
-          >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700">
-              <Plus className="h-5 w-5" />
-            </div>
-            <span className="mt-3 text-sm font-bold text-slate-900">
-              Add New Household
-            </span>
-            <span className="mt-0.5 text-xs text-slate-500">
-              Add a row to {sheetName}
-            </span>
-          </motion.button>
-
           {filteredRecords.map((record, index) => {
             const isSelected = selectedRowIndex === record.rowIndex;
             const hasSeId = record.seId.trim().length > 0;
