@@ -1,0 +1,6 @@
+{
+  "name": "Census Household Registry",
+  "description": "Google Sheets & Apps Script powered household census data entry and SE ID 2nd Phase update portal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
