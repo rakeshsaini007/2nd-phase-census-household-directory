@@ -53,26 +53,6 @@ export function Header({
               />
             )}
           </button>
-
-          <button
-            type="button"
-            onClick={onSelectSetup}
-            className={`relative py-2 whitespace-nowrap shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 rounded ${
-              activeTab === 'setup'
-                ? 'font-semibold text-indigo-900'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <span className="sm:hidden">Setup</span>
-            <span className="hidden sm:inline">Apps Script Setup</span>
-            {activeTab === 'setup' && (
-              <motion.span
-                layoutId="header-nav-underline"
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute inset-x-0 -bottom-[13px] h-0.5 bg-indigo-700"
-              />
-            )}
-          </button>
         </nav>
 
         <div className="flex items-center shrink-0">
