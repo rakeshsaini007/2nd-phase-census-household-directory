@@ -216,6 +216,13 @@ function doPost(e) {
       });
     }
 
+    if (!/^P\d{11}$/.test(incoming.seId)) {
+      return jsonResponse_({
+        status: "error",
+        message: 'SE ID (2nd Phase) must start with "P" followed by exactly 11 digits (e.g. P12345678901).'
+      });
+    }
+
     var targetRowIndex = null;
 
     if (incoming.rowIndex && incoming.rowIndex >= 2 && incoming.rowIndex <= sheet.getLastRow()) {

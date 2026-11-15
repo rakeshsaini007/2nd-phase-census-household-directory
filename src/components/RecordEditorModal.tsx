@@ -281,23 +281,56 @@ export function RecordEditorModal({
               </div>
 
               <div>
-                <label
-                  htmlFor="modal-seId"
-                  className="block text-sm font-semibold text-slate-800"
-                >
-                  {SHEET_COLUMN_LABELS.seId.hi}
-                  <span className="ml-1.5 text-xs font-normal text-slate-500">
-                    ({SHEET_COLUMN_LABELS.seId.en})
+                <div className="flex items-center justify-between gap-2">
+                  <label
+                    htmlFor="modal-seId"
+                    className="block text-sm font-semibold text-slate-800"
+                  >
+                    {SHEET_COLUMN_LABELS.seId.hi}
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">
+                      ({SHEET_COLUMN_LABELS.seId.en})
+                    </span>
+                  </label>
+                  <span className="font-mono text-[11px] font-medium text-slate-500 tabular-nums">
+                    {formValues.seId.trim().startsWith('P')
+                      ? `${Math.max(0, formValues.seId.trim().length - 1)}/11 digits`
+                      : 'P + 11 digits'}
                   </span>
-                </label>
+                </div>
                 <input
                   id="modal-seId"
                   type="text"
+                  required
+                  maxLength={12}
+                  pattern="^P[0-9]{11}$"
+                  title='Must start with "P" followed by exactly 11 digits (e.g. P12345678901)'
                   value={formValues.seId}
-                  onChange={(e) => onFieldChange('seId', e.target.value)}
-                  placeholder="Enter Self Enumeration SE ID"
-                  className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 font-mono text-base text-slate-900 tabular-nums placeholder:font-sans placeholder:text-slate-400 focus:border-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700/20 sm:text-sm"
+                  onChange={(e) => {
+                    const cleaned = e.target.value
+                      .toUpperCase()
+                      .replace(/\s+/g, '');
+                    onFieldChange('seId', cleaned);
+                  }}
+                  placeholder="e.g. P12345678901"
+                  className={`mt-1.5 block w-full rounded-lg border bg-white px-3.5 py-2.5 font-mono text-base text-slate-900 tabular-nums placeholder:font-sans placeholder:text-slate-400 focus:outline-none focus:ring-2 sm:text-sm ${
+                    formValues.seId.trim().length === 0
+                      ? 'border-slate-300 focus:border-indigo-700 focus:ring-indigo-700/20'
+                      : /^P\d{11}$/.test(formValues.seId.trim())
+                      ? 'border-emerald-500 focus:border-emerald-600 focus:ring-emerald-600/20'
+                      : 'border-red-400 focus:border-red-600 focus:ring-red-600/20'
+                  }`}
                 />
+                {formValues.seId.trim().length > 0 &&
+                  !/^P\d{11}$/.test(formValues.seId.trim()) && (
+                    <p className="mt-1 text-xs font-medium text-red-600">
+                      SE ID must start with "P" followed by exactly 11 digits (e.g. P12345678901).
+                    </p>
+                  )}
+                {/^P\d{11}$/.test(formValues.seId.trim()) && (
+                  <p className="mt-1 text-xs font-medium text-emerald-700">
+                    Valid SE ID format (P + 11 digits).
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-col-reverse gap-2.5 pt-2 sm:flex-row sm:items-center sm:gap-3">

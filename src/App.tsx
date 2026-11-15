@@ -231,19 +231,35 @@ export default function App() {
     e.preventDefault();
     if (!activeSheet) return;
 
+    const trimmedSeId = formValues.seId.trim().toUpperCase();
+    if (!/^P\d{11}$/.test(trimmedSeId)) {
+      showAlert({
+        id: Date.now(),
+        type: 'error',
+        title: 'Invalid SE ID (2nd Phase)',
+        message:
+          'SE ID (2nd Phase) must start with "P" followed by exactly 11 digits (e.g. P12345678901).',
+      });
+      return;
+    }
+
     const isUpdate = matchedRecord !== null;
     setIsSubmitting(true);
 
     try {
+      const normalizedValues: CensusFormValues = {
+        ...formValues,
+        seId: trimmedSeId,
+      };
       const payloadValues: CensusFormValues = matchedRecord
         ? {
-            ...formValues,
+            ...normalizedValues,
             buildingNumber: matchedRecord.buildingNumber,
             houseNumber: matchedRecord.houseNumber,
             familyNumber: matchedRecord.familyNumber,
             plotNumber: matchedRecord.plotNumber,
           }
-        : formValues;
+        : normalizedValues;
 
       const res = await saveOrUpdateSheetRecord({
         ...payloadValues,
