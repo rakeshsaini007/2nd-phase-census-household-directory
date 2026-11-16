@@ -232,7 +232,7 @@ function doPost(e) {
       houseNumber: normalizeText_(body.houseNumber),
       familyNumber: normalizeText_(body.familyNumber),
       plotNumber: normalizeText_(body.plotNumber),
-      seId: normalizeText_(body.seId),
+      seId: normalizeText_(body.seId).toUpperCase(),
       totalMembers: normalizeText_(body.totalMembers)
     };
 
@@ -243,7 +243,7 @@ function doPost(e) {
       });
     }
 
-    if (!/^P\d{11}$/.test(incoming.seId)) {
+    if (incoming.seId && !/^P\d{11}$/.test(incoming.seId)) {
       return jsonResponse_({
         status: "error",
         message: 'SE ID (2nd Phase) must start with "P" followed by exactly 11 digits (e.g. P12345678901).'
