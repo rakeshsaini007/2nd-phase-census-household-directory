@@ -236,7 +236,7 @@ export default function App() {
     if (!activeSheet) return;
 
     const trimmedSeId = formValues.seId.trim().toUpperCase();
-    if (!/^P\d{11}$/.test(trimmedSeId)) {
+    if (trimmedSeId.length > 0 && !/^P\d{11}$/.test(trimmedSeId)) {
       showAlert({
         id: Date.now(),
         type: 'error',

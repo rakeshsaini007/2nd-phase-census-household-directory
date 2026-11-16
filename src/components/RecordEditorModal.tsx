@@ -321,16 +321,15 @@ export function RecordEditorModal({
                   <span className="font-mono text-[11px] font-medium text-slate-500 tabular-nums">
                     {formValues.seId.trim().startsWith('P')
                       ? `${Math.max(0, formValues.seId.trim().length - 1)}/11 digits`
-                      : 'P + 11 digits'}
+                      : 'Optional · P + 11 digits'}
                   </span>
                 </div>
                 <input
                   id="modal-seId"
                   type="text"
-                  required
                   maxLength={12}
                   pattern="^P[0-9]{11}$"
-                  title='Must start with "P" followed by exactly 11 digits (e.g. P12345678901)'
+                  title='Optional. If provided, must start with "P" followed by exactly 11 digits (e.g. P12345678901)'
                   value={formValues.seId}
                   onChange={(e) => {
                     const cleaned = e.target.value
