@@ -110,7 +110,6 @@ export function RecordEditorModal({
                   matchedRecord.plotNumber,
                   plotColorMap
                 )}
-                onClearSelection={onResetToNew}
               />
             )}
 

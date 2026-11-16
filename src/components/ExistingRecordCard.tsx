@@ -1,4 +1,4 @@
-import { FileCheck2, RotateCcw, Clock } from 'lucide-react';
+import { FileCheck2, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
 import { SHEET_COLUMN_LABELS, type CensusRecord } from '../types/census';
 import { getPlotColorTheme, type PlotColorTheme } from '../utils/plotColors';
@@ -6,13 +6,11 @@ import { getPlotColorTheme, type PlotColorTheme } from '../utils/plotColors';
 interface ExistingRecordCardProps {
   record: CensusRecord;
   plotTheme?: PlotColorTheme;
-  onClearSelection: () => void;
 }
 
 export function ExistingRecordCard({
   record,
   plotTheme,
-  onClearSelection,
 }: ExistingRecordCardProps) {
   const hasSeId = record.seId.trim().length > 0;
   const resolvedPlotTheme = plotTheme ?? getPlotColorTheme(record.plotNumber);
@@ -24,27 +22,16 @@ export function ExistingRecordCard({
       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
       className={`-mx-5 mb-5 border-y px-5 py-4 sm:-mx-6 sm:px-6 ${resolvedPlotTheme.cardClass}`}
     >
-      <div className={`flex flex-wrap items-start justify-between gap-3 border-b pb-3 ${resolvedPlotTheme.dividerClass}`}>
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-800">
-            <FileCheck2 className="h-3.5 w-3.5 text-slate-700" />
-            <span>Existing Data Found in Sheet</span>
-            <span aria-hidden="true">·</span>
-            <span className="font-mono tabular-nums">Row #{record.rowIndex}</span>
-          </div>
-          <h3 className="mt-1 text-base font-bold text-slate-900">
-            {record.headName || 'Unnamed Household'}
-          </h3>
+      <div className={`border-b pb-3 ${resolvedPlotTheme.dividerClass}`}>
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-800">
+          <FileCheck2 className="h-3.5 w-3.5 text-slate-700" />
+          <span>Existing Data Found in Sheet</span>
+          <span aria-hidden="true">·</span>
+          <span className="font-mono tabular-nums">Row #{record.rowIndex}</span>
         </div>
-
-        <button
-          type="button"
-          onClick={onClearSelection}
-          className="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700"
-        >
-          <RotateCcw className="h-3.5 w-3.5" />
-          <span>New Entry</span>
-        </button>
+        <h3 className="mt-1 text-base font-bold text-slate-900">
+          {record.headName || 'Unnamed Household'}
+        </h3>
       </div>
 
       <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs sm:grid-cols-3">
