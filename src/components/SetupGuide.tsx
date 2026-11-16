@@ -10,7 +10,8 @@ const CODE_JS_SNIPPET = `var EXPECTED_HEADERS = [
   "जनगणना मकान नम्बर",
   "परिवार क्रमांक",
   "प्लॉट नम्बर",
-  "स्व जनगणना SE ID 2nd Phase"
+  "स्व जनगणना SE ID 2nd Phase",
+  "Total number of Members"
 ];`;
 
 export function SetupGuide() {

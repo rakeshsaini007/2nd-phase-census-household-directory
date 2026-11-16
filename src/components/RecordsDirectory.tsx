@@ -75,6 +75,7 @@ export function RecordsDirectory({
         record.houseNumber.toLowerCase().includes(q) ||
         record.familyNumber.toLowerCase().includes(q) ||
         record.plotNumber.toLowerCase().includes(q) ||
+        record.totalMembers.toLowerCase().includes(q) ||
         record.seId.toLowerCase().includes(q)
       );
     });
@@ -98,7 +99,7 @@ export function RecordsDirectory({
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search name, mobile, building, house, family, plot, or SE ID..."
+              placeholder="Search name, mobile, building, house, family, plot, members, or SE ID..."
               className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-base text-slate-900 placeholder:text-slate-400 focus:border-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700/20 sm:py-2 sm:text-sm"
             />
           </div>
@@ -237,6 +238,10 @@ export function RecordsDirectory({
                     <span aria-hidden="true">·</span>
                     <span className="font-mono tabular-nums">
                       Row #{record.rowIndex}
+                    </span>
+                    <span aria-hidden="true">·</span>
+                    <span className="font-mono font-semibold text-slate-800 tabular-nums">
+                      Members: {record.totalMembers || '—'}
                     </span>
                   </div>
 

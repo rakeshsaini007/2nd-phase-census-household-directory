@@ -29,6 +29,7 @@ const EMPTY_FORM: CensusFormValues = {
   familyNumber: '',
   plotNumber: '',
   seId: '',
+  totalMembers: '',
 };
 
 function normalize(val: string): string {
@@ -157,6 +158,7 @@ export default function App() {
       familyNumber: record.familyNumber,
       plotNumber: record.plotNumber,
       seId: record.seId,
+      totalMembers: record.totalMembers ?? '',
     });
     setIsEditorOpen(true);
   };
@@ -192,6 +194,7 @@ export default function App() {
               familyNumber: found.familyNumber,
               plotNumber: found.plotNumber,
               seId: found.seId || updated.seId,
+              totalMembers: found.totalMembers || updated.totalMembers,
             };
           }
         }
@@ -218,6 +221,7 @@ export default function App() {
               familyNumber: found.familyNumber,
               plotNumber: found.plotNumber,
               seId: found.seId || updated.seId,
+              totalMembers: found.totalMembers || updated.totalMembers,
             };
           }
         }

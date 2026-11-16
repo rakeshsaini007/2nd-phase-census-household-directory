@@ -96,6 +96,14 @@ export function AlertBanner({ alert, onDismiss }: AlertBannerProps) {
                     <span className="font-mono tabular-nums">
                       Row #{alert.record.rowIndex}
                     </span>
+                    {alert.record.totalMembers && (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span className="font-mono tabular-nums">
+                          Members: {alert.record.totalMembers}
+                        </span>
+                      </>
+                    )}
                     {alert.record.seId && (
                       <>
                         <span aria-hidden="true">·</span>

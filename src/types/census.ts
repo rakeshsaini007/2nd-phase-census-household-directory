@@ -6,6 +6,7 @@ export interface CensusFormValues {
   familyNumber: string;
   plotNumber: string;
   seId: string;
+  totalMembers: string;
 }
 
 export interface CensusRecord extends CensusFormValues {
@@ -73,5 +74,9 @@ export const SHEET_COLUMN_LABELS = {
   seId: {
     hi: 'स्व जनगणना SE ID 2nd Phase',
     en: 'Self Enumeration SE ID (2nd Phase)',
+  },
+  totalMembers: {
+    hi: 'कुल सदस्य',
+    en: 'Total number of Members',
   },
 } as const;

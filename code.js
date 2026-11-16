@@ -21,7 +21,8 @@ var EXPECTED_HEADERS = [
   "जनगणना मकान नम्बर",
   "परिवार क्रमांक",
   "प्लॉट नम्बर",
-  "स्व जनगणना SE ID 2nd Phase"
+  "स्व जनगणना SE ID 2nd Phase",
+  "Total number of Members"
 ];
 
 function normalizeText_(val) {
@@ -37,21 +38,32 @@ function resolveColumnMap_(headerRow) {
     houseNumber: 3,
     familyNumber: 4,
     plotNumber: 5,
-    seId: 6
+    seId: 6,
+    totalMembers: -1
   };
 
-  if (!headerRow || headerRow.length === 0) return map;
+  if (!headerRow || headerRow.length === 0) {
+    map.totalMembers = 7;
+    return map;
+  }
 
   for (var i = 0; i < headerRow.length; i++) {
     var h = normalizeText_(headerRow[i]);
+    var hLower = h.toLowerCase();
     if (h === EXPECTED_HEADERS[0] || h.indexOf("मुखिया") !== -1) map.headName = i;
     else if (h === EXPECTED_HEADERS[1] || h.indexOf("मोबाइल") !== -1) map.mobileNumber = i;
     else if (h === EXPECTED_HEADERS[2] || h.indexOf("भवन") !== -1) map.buildingNumber = i;
     else if (h === EXPECTED_HEADERS[3] || h.indexOf("मकान") !== -1) map.houseNumber = i;
     else if (h === EXPECTED_HEADERS[4] || h.indexOf("परिवार क्रमांक") !== -1) map.familyNumber = i;
     else if (h === EXPECTED_HEADERS[5] || h.indexOf("प्लॉट") !== -1) map.plotNumber = i;
-    else if (h === EXPECTED_HEADERS[6] || h.indexOf("SE ID") !== -1 || h.indexOf("स्व जनगणना") !== -1) map.seId = i;
+    else if (h === EXPECTED_HEADERS[6] || hLower.indexOf("se id") !== -1 || h.indexOf("स्व जनगणना") !== -1) map.seId = i;
+    else if (h === EXPECTED_HEADERS[7] || hLower.indexOf("member") !== -1 || h.indexOf("सदस्य") !== -1) map.totalMembers = i;
   }
+
+  if (map.totalMembers === -1) {
+    map.totalMembers = Math.max(headerRow.length, 7);
+  }
+
   return map;
 }
 
@@ -60,6 +72,17 @@ function ensureHeadersExist_(sheet) {
     var headerRange = sheet.getRange(1, 1, 1, EXPECTED_HEADERS.length);
     headerRange.setValues([EXPECTED_HEADERS]);
     headerRange.setFontWeight("bold");
+    return;
+  }
+
+  var headerRow = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), EXPECTED_HEADERS.length)).getDisplayValues()[0];
+  var colMap = resolveColumnMap_(headerRow);
+  var membersCol = colMap.totalMembers + 1;
+  var existingMembersHeader = normalizeText_(sheet.getRange(1, membersCol).getDisplayValue());
+  if (!existingMembersHeader) {
+    var cell = sheet.getRange(1, membersCol);
+    cell.setValue(EXPECTED_HEADERS[7]);
+    cell.setFontWeight("bold");
   }
 }
 
@@ -73,7 +96,10 @@ function rowToRecord_(rowValues, rowIndex, colMap, sheetName) {
     houseNumber: normalizeText_(rowValues[colMap.houseNumber]),
     familyNumber: normalizeText_(rowValues[colMap.familyNumber]),
     plotNumber: normalizeText_(rowValues[colMap.plotNumber]),
-    seId: normalizeText_(rowValues[colMap.seId])
+    seId: normalizeText_(rowValues[colMap.seId]),
+    totalMembers: colMap.totalMembers >= 0 && colMap.totalMembers < rowValues.length
+      ? normalizeText_(rowValues[colMap.totalMembers])
+      : ""
   };
 }
 
@@ -196,7 +222,7 @@ function doPost(e) {
     var values = sheet.getDataRange().getDisplayValues();
     var headers = values[0] || EXPECTED_HEADERS;
     var colMap = resolveColumnMap_(headers);
-    var totalCols = Math.max(headers.length, EXPECTED_HEADERS.length);
+    var totalCols = Math.max(headers.length, EXPECTED_HEADERS.length, colMap.totalMembers + 1);
 
     var incoming = {
       rowIndex: body.rowIndex ? Number(body.rowIndex) : null,
@@ -206,7 +232,8 @@ function doPost(e) {
       houseNumber: normalizeText_(body.houseNumber),
       familyNumber: normalizeText_(body.familyNumber),
       plotNumber: normalizeText_(body.plotNumber),
-      seId: normalizeText_(body.seId)
+      seId: normalizeText_(body.seId),
+      totalMembers: normalizeText_(body.totalMembers)
     };
 
     if (!incoming.headName && !incoming.mobileNumber) {
@@ -279,6 +306,7 @@ function doPost(e) {
     rowArray[colMap.familyNumber] = incoming.familyNumber;
     rowArray[colMap.plotNumber] = incoming.plotNumber;
     rowArray[colMap.seId] = incoming.seId;
+    rowArray[colMap.totalMembers] = incoming.totalMembers;
 
     var targetRange = sheet.getRange(writeRowIndex, 1, 1, totalCols);
     // Format as plain text ('@') BEFORE writing so leading zeros (0005, 002) are never stripped

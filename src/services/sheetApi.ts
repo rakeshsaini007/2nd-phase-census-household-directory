@@ -48,6 +48,7 @@ export async function fetchAllSheets(): Promise<SheetData[]> {
       headers: s.headers ?? [],
       records: (s.records ?? []).map((r) => ({
         ...r,
+        totalMembers: r.totalMembers ?? '',
         sheetName: r.sheetName ?? s.sheetName,
       })),
     }));
@@ -60,6 +61,7 @@ export async function fetchAllSheets(): Promise<SheetData[]> {
       headers: data.headers ?? [],
       records: (data.records ?? []).map((r) => ({
         ...r,
+        totalMembers: r.totalMembers ?? '',
         sheetName: r.sheetName ?? 'Sheet1',
       })),
     },

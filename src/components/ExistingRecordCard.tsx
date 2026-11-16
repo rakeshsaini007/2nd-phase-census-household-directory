@@ -85,6 +85,12 @@ export function ExistingRecordCard({
           </dd>
         </div>
         <div>
+          <dt className="text-slate-500">{SHEET_COLUMN_LABELS.totalMembers.en}</dt>
+          <dd className="mt-0.5 font-mono font-semibold text-slate-900 tabular-nums">
+            {record.totalMembers || '—'}
+          </dd>
+        </div>
+        <div className="col-span-2 sm:col-span-3">
           <dt className="text-slate-500">SE ID (2nd Phase)</dt>
           <dd className="mt-0.5 font-mono font-semibold tabular-nums">
             {hasSeId ? (

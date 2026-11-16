@@ -136,26 +136,53 @@ export function RecordEditorModal({
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="modal-mobileNumber"
-                  className="block text-sm font-semibold text-slate-800"
-                >
-                  {SHEET_COLUMN_LABELS.mobileNumber.hi}
-                  <span className="ml-1.5 text-xs font-normal text-slate-500">
-                    ({SHEET_COLUMN_LABELS.mobileNumber.en})
-                  </span>
-                </label>
-                <input
-                  id="modal-mobileNumber"
-                  type="tel"
-                  inputMode="numeric"
-                  required
-                  value={formValues.mobileNumber}
-                  onChange={(e) => onFieldChange('mobileNumber', e.target.value)}
-                  placeholder="e.g. 9013007304"
-                  className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 font-mono text-base text-slate-900 tabular-nums placeholder:font-sans placeholder:text-slate-400 focus:border-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700/20 sm:text-sm"
-                />
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 sm:gap-4">
+                <div>
+                  <label
+                    htmlFor="modal-mobileNumber"
+                    className="block text-sm font-semibold text-slate-800"
+                  >
+                    {SHEET_COLUMN_LABELS.mobileNumber.hi}
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">
+                      ({SHEET_COLUMN_LABELS.mobileNumber.en})
+                    </span>
+                  </label>
+                  <input
+                    id="modal-mobileNumber"
+                    type="tel"
+                    inputMode="numeric"
+                    required
+                    value={formValues.mobileNumber}
+                    onChange={(e) => onFieldChange('mobileNumber', e.target.value)}
+                    placeholder="e.g. 9013007304"
+                    className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 font-mono text-base text-slate-900 tabular-nums placeholder:font-sans placeholder:text-slate-400 focus:border-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700/20 sm:text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="modal-totalMembers"
+                    className="block text-sm font-semibold text-slate-800"
+                  >
+                    {SHEET_COLUMN_LABELS.totalMembers.hi}
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">
+                      ({SHEET_COLUMN_LABELS.totalMembers.en})
+                    </span>
+                  </label>
+                  <input
+                    id="modal-totalMembers"
+                    type="number"
+                    min={1}
+                    step={1}
+                    inputMode="numeric"
+                    value={formValues.totalMembers}
+                    onChange={(e) =>
+                      onFieldChange('totalMembers', e.target.value.replace(/[^\d]/g, ''))
+                    }
+                    placeholder="e.g. 4"
+                    className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 font-mono text-base text-slate-900 tabular-nums placeholder:font-sans placeholder:text-slate-400 focus:border-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700/20 sm:text-sm"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3.5 sm:gap-4">

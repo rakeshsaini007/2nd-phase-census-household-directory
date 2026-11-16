@@ -1,4 +1,4 @@
-import { Users, CheckCircle2, Clock, Building2 } from 'lucide-react';
+import { Home, CheckCircle2, Clock, Users } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { CensusRecord } from '../types/census';
 
@@ -26,6 +26,10 @@ export function DashboardStatsCards({
   const uniquePlots = new Set(
     records.map((r) => r.plotNumber.trim()).filter(Boolean)
   ).size;
+  const totalMembersCount = records.reduce(
+    (sum, r) => sum + (parseInt(r.totalMembers.trim(), 10) || 0),
+    0
+  );
 
   return (
     <section
@@ -49,7 +53,7 @@ export function DashboardStatsCards({
             Total Households
           </span>
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-            <Users className="h-3.5 w-3.5" />
+            <Home className="h-3.5 w-3.5" />
           </span>
         </div>
         <div className="mt-3 flex flex-wrap items-baseline justify-between gap-1">
@@ -121,18 +125,18 @@ export function DashboardStatsCards({
       <div className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5">
         <div className="flex w-full items-center justify-between gap-2">
           <span className="text-xs font-semibold text-slate-500">
-            Buildings & Plots
+            Total Members
           </span>
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700">
-            <Building2 className="h-3.5 w-3.5" />
+            <Users className="h-3.5 w-3.5" />
           </span>
         </div>
         <div className="mt-3 flex flex-wrap items-baseline justify-between gap-1">
           <span className="font-mono text-2xl font-bold text-slate-900 tabular-nums sm:text-3xl">
-            {uniqueBuildings}
+            {totalMembersCount}
           </span>
           <span className="font-mono text-[11px] text-slate-500 tabular-nums sm:text-xs">
-            {uniquePlots} plots
+            {uniqueBuildings} bldgs · {uniquePlots} plots
           </span>
         </div>
       </div>
