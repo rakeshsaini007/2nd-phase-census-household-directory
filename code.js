@@ -14,7 +14,7 @@
  * 9. Paste that URL into src/config/appsScriptConfig.ts in the React app.
  */
 
-var ADMIN_DEVELOPER_KEY = "DEV@2026";
+var ADMIN_DEVELOPER_KEY = "ADMIN@2026";
 
 var EXPECTED_HEADERS = [
   "परिवार के मुखिया का नाम",
