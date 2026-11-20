@@ -71,6 +71,9 @@ export default function App() {
   });
   const [showGoogleSheetView, setShowGoogleSheetView] = useState<boolean>(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
+  const [pendingAdminAction, setPendingAdminAction] = useState<
+    'sheet-view' | 'navigate'
+  >('sheet-view');
   const [isVerifyingAdmin, setIsVerifyingAdmin] = useState<boolean>(false);
   const [adminError, setAdminError] = useState<string | null>(null);
 
@@ -182,6 +185,7 @@ export default function App() {
 
   const handleToggleGoogleSheetView = () => {
     if (!isAdminUnlocked) {
+      setPendingAdminAction('sheet-view');
       setAdminError(null);
       setIsAdminModalOpen(true);
       return;
@@ -189,6 +193,12 @@ export default function App() {
     setActiveTab('workspace');
     setShowAllSheets(false);
     setShowGoogleSheetView((prev) => !prev);
+  };
+
+  const handleRequestAdminForNavigate = () => {
+    setPendingAdminAction('navigate');
+    setAdminError(null);
+    setIsAdminModalOpen(true);
   };
 
   const handleVerifyAdmin = async (adminKey: string) => {
@@ -203,19 +213,37 @@ export default function App() {
         } catch {
           // Ignore storage error in restricted context
         }
+        const resolvedUrl =
+          result.spreadsheetUrl && result.spreadsheetUrl.trim()
+            ? result.spreadsheetUrl.trim()
+            : spreadsheetUrl;
         if (result.spreadsheetUrl && result.spreadsheetUrl.trim()) {
           setSpreadsheetUrl(result.spreadsheetUrl.trim());
         }
         setIsAdminModalOpen(false);
         setActiveTab('workspace');
         setShowAllSheets(false);
-        setShowGoogleSheetView(true);
-        showAlert({
-          id: Date.now(),
-          type: 'saved',
-          title: 'Admin Access Granted',
-          message: 'Google Sheet view unlocked for App Developer.',
-        });
+        if (pendingAdminAction === 'navigate') {
+          if (!resolvedUrl) {
+            setIsSheetUrlModalOpen(true);
+          } else {
+            showAlert({
+              id: Date.now(),
+              type: 'saved',
+              title: 'Admin Access Granted',
+              message:
+                'Navigate Sheet is now unlocked. Click "Navigate Sheet" to open the Google Spreadsheet.',
+            });
+          }
+        } else {
+          setShowGoogleSheetView(true);
+          showAlert({
+            id: Date.now(),
+            type: 'saved',
+            title: 'Admin Access Granted',
+            message: 'Google Sheet view unlocked for App Developer.',
+          });
+        }
       } else {
         setAdminError(
           result.message || 'Access denied. Admin / App Developer only.'
@@ -478,6 +506,7 @@ export default function App() {
             setIsEditorOpen(false);
           }}
           onToggleGoogleSheetView={handleToggleGoogleSheetView}
+          onRequestAdminForNavigate={handleRequestAdminForNavigate}
           onNavigateSheetFallback={() => setIsSheetUrlModalOpen(true)}
           onSyncSheet={() => void loadAllSheets()}
           isSyncing={isLoading}

@@ -199,7 +199,6 @@ function doGet(e) {
       var single = readSingleSheet_(target);
       return jsonResponse_({
         status: "success",
-        spreadsheetUrl: spreadsheetUrl,
         sheets: [single],
         headers: single.headers,
         records: single.records
@@ -215,7 +214,6 @@ function doGet(e) {
 
     return jsonResponse_({
       status: "success",
-      spreadsheetUrl: spreadsheetUrl,
       sheets: sheetsPayload,
       headers: firstSheet.headers,
       records: firstSheet.records

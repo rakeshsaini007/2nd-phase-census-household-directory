@@ -15,6 +15,7 @@ interface HeaderProps {
   directSpreadsheetUrl: string | null;
   onSelectAllSheets: () => void;
   onToggleGoogleSheetView: () => void;
+  onRequestAdminForNavigate: () => void;
   onNavigateSheetFallback: () => void;
   onSyncSheet: () => void;
   isSyncing: boolean;
@@ -28,6 +29,7 @@ export function Header({
   directSpreadsheetUrl,
   onSelectAllSheets,
   onToggleGoogleSheetView,
+  onRequestAdminForNavigate,
   onNavigateSheetFallback,
   onSyncSheet,
   isSyncing,
@@ -119,12 +121,22 @@ export function Header({
             <span>{isGoogleSheetVisible ? 'Hide Sheet' : 'Show Google Sheet'}</span>
           </button>
 
-          {directSpreadsheetUrl ? (
+          {!isAdminUnlocked ? (
+            <button
+              type="button"
+              onClick={onRequestAdminForNavigate}
+              title="Admin / App Developer only — click to verify and navigate to Google Sheet"
+              className="inline-flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 whitespace-nowrap sm:min-h-[40px] sm:flex-initial focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700"
+            >
+              <Lock className="h-3.5 w-3.5 text-amber-700" />
+              <span>Navigate Sheet</span>
+            </button>
+          ) : directSpreadsheetUrl ? (
             <a
               href={directSpreadsheetUrl}
               target="_blank"
               rel="noopener noreferrer"
-              title="Navigate directly to the Google Sheet"
+              title="Navigate directly to the Google Sheet (Admin unlocked)"
               className="inline-flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-900 transition-colors hover:bg-emerald-100 whitespace-nowrap sm:min-h-[40px] sm:flex-initial focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
             >
               <ExternalLink className="h-3.5 w-3.5 text-emerald-700" />
@@ -134,7 +146,7 @@ export function Header({
             <button
               type="button"
               onClick={onNavigateSheetFallback}
-              title="Navigate directly to the Google Sheet"
+              title="Connect Google Sheet URL to navigate"
               className="inline-flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-900 transition-colors hover:bg-emerald-100 whitespace-nowrap sm:min-h-[40px] sm:flex-initial focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
             >
               <ExternalLink className="h-3.5 w-3.5 text-emerald-700" />
