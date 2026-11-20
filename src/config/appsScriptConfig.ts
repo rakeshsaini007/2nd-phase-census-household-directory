@@ -21,5 +21,5 @@ export const GOOGLE_SHEET_URL = '';
  * App Developer / Admin access key used as fallback if Apps Script verifyAdmin is not yet deployed.
  * Primary verification runs on Google Apps Script (ADMIN_DEVELOPER_KEY in code.js).
  */
-export const ADMIN_DEVELOPER_KEY = 'DEV@2026';
+export const ADMIN_DEVELOPER_KEY = 'ADMIN@2026';
 
