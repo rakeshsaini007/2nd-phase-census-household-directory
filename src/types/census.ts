@@ -23,6 +23,8 @@ export interface SheetData {
 
 export interface SheetFetchResponse {
   status: 'success' | 'error';
+  authorized?: boolean;
+  spreadsheetUrl?: string;
   sheets?: SheetData[];
   headers?: string[];
   records?: CensusRecord[];

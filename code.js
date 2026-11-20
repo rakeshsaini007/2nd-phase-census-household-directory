@@ -14,6 +14,8 @@
  * 9. Paste that URL into src/config/appsScriptConfig.ts in the React app.
  */
 
+var ADMIN_DEVELOPER_KEY = "DEV@2026";
+
 var EXPECTED_HEADERS = [
   "परिवार के मुखिया का नाम",
   "मोबाइल नंबर",
@@ -24,6 +26,16 @@ var EXPECTED_HEADERS = [
   "स्व जनगणना SE ID 2nd Phase",
   "Total number of Members"
 ];
+
+function getAdminKey_() {
+  try {
+    var propKey = PropertiesService.getScriptProperties().getProperty("ADMIN_KEY");
+    if (propKey && String(propKey).trim() !== "") {
+      return String(propKey).trim();
+    }
+  } catch (ignore) {}
+  return ADMIN_DEVELOPER_KEY;
+}
 
 function normalizeText_(val) {
   if (val === null || val === undefined) return "";
@@ -154,6 +166,25 @@ function jsonResponse_(payload) {
 function doGet(e) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var spreadsheetUrl = ss.getUrl();
+    var action = e && e.parameter && e.parameter.action ? String(e.parameter.action).trim() : "";
+
+    if (action === "verifyAdmin") {
+      var providedKey = e && e.parameter && e.parameter.adminKey ? String(e.parameter.adminKey).trim() : "";
+      if (providedKey && providedKey === getAdminKey_()) {
+        return jsonResponse_({
+          status: "success",
+          authorized: true,
+          spreadsheetUrl: spreadsheetUrl
+        });
+      }
+      return jsonResponse_({
+        status: "error",
+        authorized: false,
+        message: "Invalid Admin / App Developer key."
+      });
+    }
+
     var allSheets = ss.getSheets();
     var requestedSheet = e && e.parameter && e.parameter.sheet ? String(e.parameter.sheet).trim() : "";
 
@@ -168,6 +199,7 @@ function doGet(e) {
       var single = readSingleSheet_(target);
       return jsonResponse_({
         status: "success",
+        spreadsheetUrl: spreadsheetUrl,
         sheets: [single],
         headers: single.headers,
         records: single.records
@@ -183,6 +215,7 @@ function doGet(e) {
 
     return jsonResponse_({
       status: "success",
+      spreadsheetUrl: spreadsheetUrl,
       sheets: sheetsPayload,
       headers: firstSheet.headers,
       records: firstSheet.records

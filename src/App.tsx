@@ -7,11 +7,18 @@ import { SheetsGrid } from './components/SheetsGrid';
 import { RecordsDirectory } from './components/RecordsDirectory';
 import { RecordEditorModal } from './components/RecordEditorModal';
 import { SetupGuide } from './components/SetupGuide';
+import { AdminAccessModal, SheetUrlModal } from './components/AdminAccessModal';
+import {
+  GoogleSheetView,
+  buildActiveSpreadsheetUrl,
+} from './components/GoogleSheetView';
 import type { StatsFilterMode } from './components/DashboardStatsCards';
+import { GOOGLE_SHEET_URL } from './config/appsScriptConfig';
 import {
   fetchAllSheets,
   isAppsScriptConfigured,
   saveOrUpdateSheetRecord,
+  verifyAdminAccess,
 } from './services/sheetApi';
 import { buildPlotColorMap } from './utils/plotColors';
 import type {
@@ -20,6 +27,9 @@ import type {
   CensusRecord,
   SheetData,
 } from './types/census';
+
+const ADMIN_SESSION_KEY = 'census_admin_unlocked';
+const SAVED_SHEET_URL_KEY = 'census_google_sheet_url';
 
 const EMPTY_FORM: CensusFormValues = {
   headName: '',
@@ -52,6 +62,29 @@ export default function App() {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null);
   const [alert, setAlert] = useState<AlertState | null>(null);
 
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(() => {
+    try {
+      return window.sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const [showGoogleSheetView, setShowGoogleSheetView] = useState<boolean>(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
+  const [isVerifyingAdmin, setIsVerifyingAdmin] = useState<boolean>(false);
+  const [adminError, setAdminError] = useState<string | null>(null);
+
+  const [spreadsheetUrl, setSpreadsheetUrl] = useState<string | null>(() => {
+    const configuredUrl = GOOGLE_SHEET_URL.trim();
+    if (configuredUrl) return configuredUrl;
+    try {
+      return window.localStorage.getItem(SAVED_SHEET_URL_KEY) || null;
+    } catch {
+      return null;
+    }
+  });
+  const [isSheetUrlModalOpen, setIsSheetUrlModalOpen] = useState<boolean>(false);
+
   const showAlert = useCallback((nextAlert: AlertState) => {
     setAlert(nextAlert);
   }, []);
@@ -60,8 +93,12 @@ export default function App() {
     if (!isAppsScriptConfigured()) return;
     setIsLoading(true);
     try {
-      const loadedSheets = await fetchAllSheets();
+      const { sheets: loadedSheets, spreadsheetUrl: remoteUrl } =
+        await fetchAllSheets();
       setSheets(loadedSheets);
+      if (remoteUrl && remoteUrl.trim()) {
+        setSpreadsheetUrl(remoteUrl.trim());
+      }
       setSelectedSheetName((current) => {
         if (current && loadedSheets.some((s) => s.sheetName === current)) {
           return current;
@@ -137,6 +174,89 @@ export default function App() {
     formValues.houseNumber,
     formValues.familyNumber,
   ]);
+
+  const directSpreadsheetUrl = useMemo(
+    () => buildActiveSpreadsheetUrl(spreadsheetUrl, activeSheet?.sheetId),
+    [spreadsheetUrl, activeSheet?.sheetId]
+  );
+
+  const handleToggleGoogleSheetView = () => {
+    if (!isAdminUnlocked) {
+      setAdminError(null);
+      setIsAdminModalOpen(true);
+      return;
+    }
+    setActiveTab('workspace');
+    setShowAllSheets(false);
+    setShowGoogleSheetView((prev) => !prev);
+  };
+
+  const handleVerifyAdmin = async (adminKey: string) => {
+    setIsVerifyingAdmin(true);
+    setAdminError(null);
+    try {
+      const result = await verifyAdminAccess(adminKey);
+      if (result.authorized) {
+        setIsAdminUnlocked(true);
+        try {
+          window.sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+        } catch {
+          // Ignore storage error in restricted context
+        }
+        if (result.spreadsheetUrl && result.spreadsheetUrl.trim()) {
+          setSpreadsheetUrl(result.spreadsheetUrl.trim());
+        }
+        setIsAdminModalOpen(false);
+        setActiveTab('workspace');
+        setShowAllSheets(false);
+        setShowGoogleSheetView(true);
+        showAlert({
+          id: Date.now(),
+          type: 'saved',
+          title: 'Admin Access Granted',
+          message: 'Google Sheet view unlocked for App Developer.',
+        });
+      } else {
+        setAdminError(
+          result.message || 'Access denied. Admin / App Developer only.'
+        );
+      }
+    } catch (err) {
+      setAdminError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to verify Admin access key.'
+      );
+    } finally {
+      setIsVerifyingAdmin(false);
+    }
+  };
+
+  const handleLockAdmin = () => {
+    setIsAdminUnlocked(false);
+    setShowGoogleSheetView(false);
+    try {
+      window.sessionStorage.removeItem(ADMIN_SESSION_KEY);
+    } catch {
+      // Ignore storage error
+    }
+  };
+
+  const handleSaveSheetUrl = (url: string) => {
+    setSpreadsheetUrl(url);
+    try {
+      window.localStorage.setItem(SAVED_SHEET_URL_KEY, url);
+    } catch {
+      // Ignore storage error
+    }
+    setIsSheetUrlModalOpen(false);
+    showAlert({
+      id: Date.now(),
+      type: 'saved',
+      title: 'Google Sheet URL Connected',
+      message: 'Click "Navigate Sheet" anytime to open your Google Spreadsheet.',
+    });
+  };
 
   const handleOpenSheet = (sheetName: string) => {
     setShowAllSheets(false);
@@ -332,6 +452,8 @@ export default function App() {
   const currentViewKey =
     activeTab === 'setup'
       ? 'setup'
+      : isAdminUnlocked && showGoogleSheetView && activeSheet
+      ? `google-sheet-${activeSheet.sheetName}`
       : showAllSheets
       ? 'all-sheets'
       : activeSheet
@@ -345,19 +467,41 @@ export default function App() {
       <div className="min-h-screen bg-[#f6f7fb] text-slate-900">
         <Header
           activeTab={activeTab}
+          isAdminUnlocked={isAdminUnlocked}
+          isGoogleSheetVisible={isAdminUnlocked && showGoogleSheetView}
+          directSpreadsheetUrl={directSpreadsheetUrl}
           onSelectAllSheets={() => {
             setActiveTab('workspace');
+            setShowGoogleSheetView(false);
             setShowAllSheets(true);
             setSelectedSheetName(null);
             setIsEditorOpen(false);
           }}
-          onSelectSetup={() => setActiveTab('setup')}
+          onToggleGoogleSheetView={handleToggleGoogleSheetView}
+          onNavigateSheetFallback={() => setIsSheetUrlModalOpen(true)}
           onSyncSheet={() => void loadAllSheets()}
           isSyncing={isLoading}
           isConfigured={configured}
         />
 
         <AlertBanner alert={alert} onDismiss={() => setAlert(null)} />
+
+        <AdminAccessModal
+          isOpen={isAdminModalOpen}
+          isVerifying={isVerifyingAdmin}
+          errorMessage={adminError}
+          onVerify={(key) => void handleVerifyAdmin(key)}
+          onClose={() => {
+            if (!isVerifyingAdmin) setIsAdminModalOpen(false);
+          }}
+        />
+
+        <SheetUrlModal
+          isOpen={isSheetUrlModalOpen}
+          initialUrl={spreadsheetUrl ?? ''}
+          onSaveUrl={handleSaveSheetUrl}
+          onClose={() => setIsSheetUrlModalOpen(false)}
+        />
 
         <main className="mx-auto max-w-[1360px] px-3.5 py-5 sm:px-6 sm:py-7 lg:px-8">
           {!configured && activeTab === 'workspace' && (
@@ -392,6 +536,34 @@ export default function App() {
             >
               {activeTab === 'setup' ? (
                 <SetupGuide />
+              ) : isAdminUnlocked && showGoogleSheetView && activeSheet ? (
+                <>
+                  <GoogleSheetView
+                    sheets={sheets}
+                    activeSheet={activeSheet}
+                    spreadsheetUrl={spreadsheetUrl}
+                    onSelectSheet={(name) => setSelectedSheetName(name)}
+                    onSelectRecord={handleOpenRecordEditor}
+                    onBackToCards={() => setShowGoogleSheetView(false)}
+                    onLockAdmin={handleLockAdmin}
+                    onRequestSheetUrl={() => setIsSheetUrlModalOpen(true)}
+                  />
+
+                  <RecordEditorModal
+                    isOpen={isEditorOpen}
+                    sheetName={activeSheet.sheetName}
+                    formValues={formValues}
+                    matchedRecord={matchedRecord}
+                    plotColorMap={plotColorMap}
+                    isSubmitting={isSubmitting}
+                    onFieldChange={handleFieldChange}
+                    onSubmit={handleSubmit}
+                    onResetToNew={handleResetToNew}
+                    onClose={() => {
+                      if (!isSubmitting) setIsEditorOpen(false);
+                    }}
+                  />
+                </>
               ) : !showAllSheets && (activeSheet || isLoading) ? (
                 <>
                   <RecordsDirectory
